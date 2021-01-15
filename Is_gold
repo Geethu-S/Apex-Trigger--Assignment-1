@@ -1,0 +1,31 @@
+trigger is_gold on Opportunity (after insert,after update) {
+ 
+  List<Account> lstAccounts = new List<Account>();
+    Set<Id> setAccountIds = new Set<Id>();
+
+
+    Map<Id,Opportunity> mapAccIdOpp = new Map<Id,Opportunity>();
+    
+    if(Trigger.isInsert || Trigger.isUpdate && Trigger.isAfter)
+    for(Opportunity obj : Trigger.New){
+        
+        setAccountIds.add(obj.AccountId);
+    }
+    for(Opportunity obj : Trigger.New){
+        mapAccIdOpp.put(obj.AccountId,obj);
+    }
+    for(Account obj :[SELECT Id, is_gold__c FROM Account WHERE Id IN : setAccountIds]){
+        if(mapAccIdOpp.get(obj.Id).Amount > 20000){
+            obj.is_gold__c = TRUE;
+             lstAccounts.add(obj);
+        }
+        else{
+              obj.is_gold__c = FALSE;
+             lstAccounts.add(obj);
+        }
+        
+    }
+    if( lstAccounts.size()>0)
+    upsert  lstAccounts;
+ 
+}
