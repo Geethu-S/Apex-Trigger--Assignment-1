@@ -1,0 +1,22 @@
+trigger Profile on Account (after insert, after update) {
+   
+    List<Contact> listcon = new List<Contact>([Select Id, FirstName, LastName,  AccountId FROM Contact WHERE AccountId IN : Trigger.New]);
+    Map<Id,Account> mapAccId = new Map<Id,Account>([Select Id, website FROM Account WHERE Id IN : Trigger.New]);
+    List<Contact> con = new List<Contact>();
+    if(Trigger.isInsert || Trigger.isUpdate && Trigger.isAfter){
+    
+        for(Contact obj : listcon)
+        {
+            Account objAccount = mapAccId.get(obj.AccountId);   
+            
+            if(obj.FirstName != NULL){
+                
+                String sFirstName = obj.FirstName.substring(0,1);
+                obj.Profile__C = objAccount.website + '/' + sFirstName + obj.LastName;       
+                con.add(obj); 
+            }
+        }
+        if(con.size()>0)
+        update con;
+}
+}
