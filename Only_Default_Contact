@@ -1,0 +1,25 @@
+trigger Only_Default_Contact on Account (after insert) {
+  
+          Account acct = [Select Id, Only_Default_Contact__c From Account WHERE Id IN :Trigger.New];
+    List<Contact> conlist = new List<Contact>();
+          Contact con = new Contact();
+          con.FirstName = 'Info';
+          con.LastName = 'Default';
+          con.Email = 'info@websitedomain.tld';
+          con.accountId = acct.id;
+    
+     acct.Only_Default_Contact__c = True;
+     update acct;
+    
+    if(conlist.size() > 1)
+    {
+          acct.Only_Default_Contact__c = False;
+          update acct;
+    
+    }
+          conlist.add(con);
+          insert con;
+         
+         
+    
+}
